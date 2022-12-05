@@ -1,0 +1,50 @@
+# Вообще-то ты дев, но пока для простоты запуска/остановки будешь зваться так
+
+# Для запуска дев-докер-композа:
+# docker-compose -f docker-compose.dev.yml up
+
+services:
+
+  mongo:
+    container_name: mongo-database
+    image: mongo:6.0.3
+    volumes:
+      - ./data:/data/db
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  delivery:
+    container_name: delivery-app
+    image: node:19.1-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - 4001:3001
+    environment:
+      - DELIVERY_INTERNAL_PORT=$DELIVERY_INTERNAL_PORT
+      - MONGODB_SERVICE_NAME=$MONGODB_SERVICE_NAME
+      - MONGODB_INTERNAL_PORT=$MONGODB_INTERNAL_PORT
+      - MONGODB_LOGIN=$MONGODB_LOGIN
+      - MONGODB_PASSWORD=$MONGODB_PASSWORD
+      - DB_NAME=$DB_NAME
+    command: [ "npm", "run", "dev" ]
+    depends_on:
+      - mongo
+
+  # TODO: Донастроить через config.js (смотри в описании образа на Докерхабе)
+  mongo-express:
+    container_name: mongo-admin-panel
+    image: mongo-express:1.0.0-alpha.4
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: $MONGODB_LOGIN
+      ME_CONFIG_MONGODB_ADMINPASSWORD: $MONGODB_PASSWORD
+      ME_CONFIG_MONGODB_URL: mongodb://$MONGODB_LOGIN:$MONGODB_PASSWORD@$MONGODB_SERVICE_NAME:$MONGODB_INTERNAL_PORT/
+    depends_on:
+      - mongo
+      - delivery
