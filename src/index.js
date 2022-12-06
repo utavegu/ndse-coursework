@@ -1,17 +1,15 @@
 const express = require('express');
-const path = require('path');
 const http = require('http');
 const session = require('express-session');
 const mongoose = require('mongoose');
-// const passport = require('passport');
+const passport = require('passport');
 // const socketIO = require('socket.io');
-
+const config = require('./config');
 const userRouting = require('./routes/user');
-
 
 // const socketConnectionCallback = require('./utils/socket');
 
-// config.activatePassport();
+config.passport.activatePassport();
 
 const app = express();
 // Способ запуска через http нужен для работы socketIO, в других случаях хватило бы просто app
@@ -32,11 +30,11 @@ const mongoDbConnectionUrl = `mongodb://${MONGODB_LOGIN}:${MONGODB_PASSWORD}@${M
 app
   .use(express.json())
   .use(express.urlencoded({ extended: true }))
-  // .use(session({ secret: 'SECRET' }))
-  // .use(passport.initialize())
-  // .use(passport.session())
+  .use(session({ secret: 'SECRET' }))
+  .use(passport.initialize())
+  .use(passport.session())
   .use('/api', userRouting)
-  // .use(error404);
+// .use(error404);
 
 // io.on('connection', socketConnectionCallback);
 

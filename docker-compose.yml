@@ -22,7 +22,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - 4001:3001
+      - $DELIVERY_EXTERNAL_PORT:$DELIVERY_INTERNAL_PORT
     environment:
       - DELIVERY_INTERNAL_PORT=$DELIVERY_INTERNAL_PORT
       - MONGODB_SERVICE_NAME=$MONGODB_SERVICE_NAME
@@ -40,7 +40,7 @@ services:
     image: mongo-express:1.0.0-alpha.4
     restart: always
     ports:
-      - 8081:8081
+      - $MONGO_ADMIN_PANEL_EXTERNAL_PORT:$MONGO_ADMIN_PANEL_INTERNAL_PORT
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: $MONGODB_LOGIN
       ME_CONFIG_MONGODB_ADMINPASSWORD: $MONGODB_PASSWORD

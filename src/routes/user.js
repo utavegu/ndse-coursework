@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
-
 const UsersController = require('../controllers/UsersController');
+const config = require('../config');
+
+const authenticate = config.passport.authenticateSetup;
 
 // Регистрация пользователя
 router.post(
@@ -13,20 +14,8 @@ router.post(
 // Залогиниться
 router.post(
   '/signin',
-  // UsersController.createUser
-)
-
-// router.post('/login',
-//   passport.authenticate('local', { failureRedirect: '/user/login' }),
-//   UsersController.signIn
-// )
-// router.get('/signup', UsersController.renderSignUpPage)
-// router.post('/signup', UsersController.signUp)
-// router.get('/logout', UsersController.logOut)
-
-// router.get('/profile',
-//   UsersController.checkAuthenticated,
-//   UsersController.renderProfilePage
-// )
+  authenticate('local', { session: false }),
+  UsersController.login
+);
 
 module.exports = router;
