@@ -1,11 +1,18 @@
 const User = require('../models/User');
+const bcrypt = require("bcrypt");
 
 class UsersController {
 
   async createUser(request, response) {
-    // Вообще, я так понял, прилетает-то мне просто password, а passwordHash уже улетает в монгу. После преобразования.
-    const newUser = new User(request.body)
     try {
+      if (!request.body.password) {
+        return response
+          .status(418)
+          .json({ status: 'error', error: `Введите пароль!` })
+      }
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(request.body.password, salt);
+      const newUser = new User({...request.body, passwordHash: passwordHash});
       await newUser.save()
       response
         .status(201)
@@ -33,6 +40,7 @@ class UsersController {
   }
 
   login(request, response) {
+    // TODO: А код ответа какой? status. 200?
     response.json({
       status: "ok",
       data: {

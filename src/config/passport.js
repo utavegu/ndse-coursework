@@ -1,5 +1,6 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require("bcrypt");
 const User = require('../models/User');
 
 module.exports = {
@@ -7,7 +8,7 @@ module.exports = {
 
     const options = {
       usernameField: "email",
-      passwordField: "passwordHash",
+      passwordField: "password",
     }
 
     const verify = async (username, password, callback) => {
@@ -16,7 +17,8 @@ module.exports = {
         if (!user) {
           return callback(null, false)
         } else {
-          if (!(user.passwordHash === password)) {
+          const validPassword = await bcrypt.compare(password, user.passwordHash);
+          if (!(validPassword)) {
             return callback(null, false)
           }
           return callback(null, user)
