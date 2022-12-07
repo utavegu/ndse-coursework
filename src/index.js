@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 // const socketIO = require('socket.io');
 const config = require('./config');
-const userRouting = require('./routes/user');
+const usersRouting = require('./routes/users');
+const advertisementsRouting = require('./routes/advertisements');
 
 // const socketConnectionCallback = require('./utils/socket');
 
@@ -16,6 +17,7 @@ const app = express();
 const server = http.Server(app);
 // const io = socketIO(server);
 
+// TODO Этих ребят давай потом тоже в конфиг
 const {
   DELIVERY_INTERNAL_PORT,
   MONGODB_SERVICE_NAME,
@@ -25,6 +27,7 @@ const {
   DB_NAME,
 } = process.env;
 
+// TODO: И ее
 const mongoDbConnectionUrl = `mongodb://${MONGODB_LOGIN}:${MONGODB_PASSWORD}@${MONGODB_SERVICE_NAME}:${MONGODB_INTERNAL_PORT}/`;
 
 app
@@ -33,7 +36,8 @@ app
   .use(session({ secret: 'SECRET' }))
   .use(passport.initialize())
   .use(passport.session())
-  .use('/api', userRouting)
+  .use('/api', usersRouting)
+  .use('/api', advertisementsRouting)
 // .use(error404);
 
 // io.on('connection', socketConnectionCallback);

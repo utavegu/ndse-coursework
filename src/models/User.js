@@ -1,4 +1,4 @@
-const { Schema, model, mongoose } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 // TODO: Что-то тут джээсдок не дружит со схемамим монгуза похоже...
 
