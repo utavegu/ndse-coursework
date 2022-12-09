@@ -11,20 +11,21 @@ module.exports = {
       passwordField: "password",
     }
 
-    const verify = async (username, password, callback) => {
+    // TODO: Давай все-таки callback, а не done для понятности
+    const verify = async (username, password, done) => {
       try {
         const user = await User.findOne({ email: username }).select('-__v');
         if (!user) {
-          return callback(null, false)
+          return done(null, false)
         } else {
           const validPassword = await bcrypt.compare(password, user.passwordHash);
           if (!(validPassword)) {
-            return callback(null, false)
+            return done(null, false)
           }
-          return callback(null, user)
+          return done(null, user)
         }
       } catch (error) {
-        return callback(error)
+        return done(error)
       }
     }
 
@@ -44,7 +45,7 @@ module.exports = {
     })
 
   },
-  authenticateSetup: (strategy, options) => (req, res, next) => {
+  authenticateSetup: (strategy, options = {}) => (req, res, next) => {
     passport.authenticate(strategy, options, (error, user, info) => {
 
       if (error) {
@@ -56,9 +57,7 @@ module.exports = {
           status: "error",
           error: "Неверный логин или пароль"
         })
-      }
-
-      if (options.session) {
+      } else if (user) {
         return req.logIn(user, (err) => {
           if (err) {
             return next(err);

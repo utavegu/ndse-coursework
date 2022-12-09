@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const UsersController = require('../controllers/UsersController');
 const config = require('../config');
 
@@ -14,8 +15,14 @@ router.post(
 // Залогиниться
 router.post(
   '/signin',
-  authenticate('local', { session: false }),
+  authenticate('local'),
   UsersController.login
 );
+
+// Разлогиниться
+router.get(
+  '/signout',
+  UsersController.logout
+)
 
 module.exports = router;

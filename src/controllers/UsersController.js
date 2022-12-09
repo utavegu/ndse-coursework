@@ -12,7 +12,7 @@ class UsersController {
       }
       const salt = await bcrypt.genSalt(10);
       const passwordHash = await bcrypt.hash(request.body.password, salt);
-      const newUser = new User({...request.body, passwordHash: passwordHash});
+      const newUser = new User({ ...request.body, passwordHash: passwordHash });
       await newUser.save()
       response
         .status(201)
@@ -51,7 +51,17 @@ class UsersController {
       }
     })
   }
-  
+
+  logout(request, response, next) {
+    request.logout((error) => {
+      if (error) {
+        return next(error);
+      }
+    })
+    // Так лучше не делать, конечно
+    response.send("Разлогинились успешно!")
+  }
+
 }
 
 module.exports = new UsersController();

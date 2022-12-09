@@ -5,19 +5,12 @@ const AdvertisementsController = require('../controllers/AdvertisementsControlle
 const config = require('../config');
 
 const fileMulter = config.multer;
-const UPLOAD_IMAGES_LIMIT = 5 // TODO: Тоже в конфиг можно, в принципе. Раздел "константы"
+const { UPLOAD_IMAGES_LIMIT } = config.constants;
 
 // Создание объявления
 router.post(
   '/advertisements',
-  /*
-  (request, _, next) => {
-    if (!request.isAuthenticated()) {
-      return console.log('Недостаточно прав для данного действия!')
-    }
-    next()
-  },
-  */
+  AdvertisementsController.protectAdvertisement,
   fileMulter.array('images', UPLOAD_IMAGES_LIMIT),
   AdvertisementsController.createAdvertisement
 )
@@ -37,6 +30,7 @@ router.get(
 // Удаление объявления
 router.delete(
   '/advertisements/:id',
+  AdvertisementsController.protectAdvertisement,
   AdvertisementsController.deleteAdvertisement
 )
 
