@@ -1,21 +1,22 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
+
 const session = require('express-session');
 const mongoose = require('mongoose');
 const passport = require('passport');
-// const socketIO = require('socket.io');
+const socketIO = require('socket.io');
+
 const config = require('./config');
 const usersRouting = require('./routes/users');
 const advertisementsRouting = require('./routes/advertisements');
 
-// const socketConnectionCallback = require('./utils/socket');
-
 config.passport.activatePassport();
+const socketConnectionCallback = config.socket;
 
 const app = express();
-// Способ запуска через http нужен для работы socketIO, в других случаях хватило бы просто app
 const server = http.Server(app);
-// const io = socketIO(server);
+const io = socketIO(server);
 
 // TODO Этих ребят давай потом тоже в конфиг
 const {
@@ -38,9 +39,14 @@ app
   .use(passport.session())
   .use('/api', usersRouting)
   .use('/api', advertisementsRouting)
-// .use(error404);
+// .use(error404); TODO: Неплохо бы добавить, если успеешь
 
-// io.on('connection', socketConnectionCallback);
+io.on('connection', socketConnectionCallback);
+
+// Ручка для теста сокетов
+app.get('/chat', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'socket-test.html'));
+});
 
 const start = async () => {
   try {

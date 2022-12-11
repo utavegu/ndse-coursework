@@ -94,6 +94,7 @@ class AdvertisementsController {
     }
   }
 
+  // TODO: Реализовано неправильно, нужно переделать
   async getAdvertisement(request, response) {
     const { id } = request.params
     try {
