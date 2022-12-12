@@ -39,7 +39,7 @@
     const sendRoom = document.querySelector('#send');
 
     const getTmp = (msg) => {
-        return `
+      return `
           <div class="list-group-item list-group-item-action">
             <div class="d-flex w-100 justify-content-between">
               <small>Автор: ${msg.author}</small>
@@ -55,21 +55,30 @@
 
 
 
-    // TODO: Продублировать функционал ниже в Постмане
+    /*
+    В Постмане
+    My Workspace => New => WebSocket Request => Raw поменять на Socket.IO => ws://localhost:ВНЕШНИЙ_ПОРТ_ПРИЛОЖЕНИЯ/ => Connect => Запонлнить Event Name => формат JSON => { "text": "Сообщение" } => Send
+    Есть еще протокол wss
+    Не забывать делать дисконнект, если менялись переменные окружения
+    Входящие сообщения в постмане только что-то мне не приходят, но в базе данных все как надо меняется. Возможно это связано с тем, что у меня 2 разных события.
+    */
+    
 
+    // Первый аргумент - сервер находится прямо тут. Второй (параметры) убрал, ничего отсюда не передаю при создании сокета (имя комнаты генерируется на сервере)
     const socket = io.connect('/');
 
+    // Клик по кнопке инициирует в открытом сокете событие "client-to-server" с пэйлоадом из вэлью текстареи
+    sendRoom.addEventListener('click', () => {
+      socket.emit('client-to-server', { text: inputText.value });
+      inputText.value = '';
+    })
+
+    // В открытом сокете слушает событие 'server-to-client' и когда оно происходит - клиент принимает пэйлоад от сервера
     socket.on('server-to-client', (msg) => {
       const div = getTmp(msg)
       boxList.insertAdjacentHTML('beforeend', div)
     });
 
-    sendRoom.addEventListener('click', () => {
-      socket.emit('client-to-server', {
-        text: inputText.value
-      })
-      inputText.value = '';
-    })
 
 
 
@@ -77,7 +86,6 @@
 
 
 
-    
   </script>
 
 </body>

@@ -1,4 +1,5 @@
 const ChatModels = require('../models/Chat');
+const ChatController = require('../controllers/ChatController');
 
 /*
 При отправке сообщения нужно:
@@ -10,10 +11,21 @@ module.exports = (socket) => {
   const { Message, Chat } = ChatModels
 
   const MOCK_AUTHOR = '639372280441b8595fea4cb5'; // Достаем из залогиненного юзера
-  const MOCK_RECEIVER = '639372280441b8595fea4cb6'; // Вообще нет идей откуда достаем. Видимо, предполагается, что в интерфейсе есть что-то типа профилей пользователя и в профиле будет кнопка "написать персональное сообщение"
+  const MOCK_RECEIVER = '639372280441b8595fea4cb5'; // Вообще нет идей откуда достаем. Видимо, предполагается, что в интерфейсе есть что-то типа профилей пользователя и в профиле будет кнопка "написать персональное сообщение" (ДОЛЖНО ПЕРЕДАВАТЬСЯ ПАРАМЕТРОМ, ГДЕ-ТО В ТЗ ПИСАЛОСЬ НА ЭТУ ТЕМУ)
 
   // const { id } = socket;
   // console.log(`---------- Socket connected: ${id} ----------`);
+
+  // Каждый раз при добавлении сообщения функция обратного вызова должна вызываться со следующими параметрами
+  const subscribeCallback = (chatID, message) => {
+    console.log(`В чате ${chatID} появилось новое сообщение: "${message}"`)
+    const roomName = chatID;
+    socket.join(roomName);
+    socket
+      .to(roomName)
+      .emit('server-to-client', message);
+    socket.emit('server-to-client', message);
+  }
 
   socket.on('client-to-server', (msg) => {
     (async () => {
@@ -24,29 +36,29 @@ module.exports = (socket) => {
         }
         const newMessage = new Message(message);
         const chat = await Chat.findOne({ users: [MOCK_AUTHOR, MOCK_RECEIVER] }).select('-__v');
+        const arrayOfMessages = !!chat ? chat.messages : [];
+        arrayOfMessages.push(newMessage);
         if (chat) {
-          const arrayOfMessages = chat.messages;
-          arrayOfMessages.push(newMessage);
+          console.log('ТЕСТ ИМЕЮЩЕГОСЯ ЧАТА')
+          // const arrayOfMessages = chat.messages;
+          // arrayOfMessages.push(newMessage);
+          ChatController.subscribe(subscribeCallback(chat.id, newMessage));
           await Chat.findByIdAndUpdate(
             chat.id,
             { messages: arrayOfMessages },
           )
         } else {
-          const arrayOfMessages = [];
-          arrayOfMessages.push(newMessage);
+          console.log('ТЕСТ НОВОГО ЧАТА')
+          // const arrayOfMessages = [];
+          // arrayOfMessages.push(newMessage);
           const newChat = new Chat({
             users: [MOCK_AUTHOR, MOCK_RECEIVER],
             createdAt: newMessage.sentAt,
             messages: arrayOfMessages,
           });
+          ChatController.subscribe(subscribeCallback(newChat.id, newMessage));
           await newChat.save()
         }
-        const roomName = [MOCK_AUTHOR, MOCK_RECEIVER].join('');
-        socket.join(roomName);
-        socket
-          .to(roomName)
-          .emit('server-to-client', newMessage);
-        socket.emit('server-to-client', newMessage);
       } catch (error) {
         console.error(error)
       }
