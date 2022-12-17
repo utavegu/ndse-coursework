@@ -1,22 +1,21 @@
 const express = require('express');
-const http = require('http');
 const path = require('path');
-
 const session = require('express-session');
-const mongoose = require('mongoose');
 const passport = require('passport');
+const mongoose = require('mongoose');
 const socketIO = require('socket.io');
 
 const config = require('./config');
 const usersRouting = require('./routes/users');
 const advertisementsRouting = require('./routes/advertisements');
 
+const app = express();
+const server = require('http').createServer(app);
+
 config.passport.activatePassport();
 const socketConnectionCallback = config.socket;
 
-const app = express();
-const server = http.Server(app);
-const io = socketIO(server);
+const sessionMiddleware = session({ secret: "SECRET" });
 
 // TODO Этих ребят давай потом тоже в конфиг
 const {
@@ -34,19 +33,27 @@ const mongoDbConnectionUrl = `mongodb://${MONGODB_LOGIN}:${MONGODB_PASSWORD}@${M
 app
   .use(express.json())
   .use(express.urlencoded({ extended: true }))
-  .use(session({ secret: 'SECRET' }))
+  .use(sessionMiddleware)
   .use(passport.initialize())
   .use(passport.session())
   .use('/api', usersRouting)
   .use('/api', advertisementsRouting)
 // .use(error404); TODO: Неплохо бы добавить, если успеешь
 
-io.on('connection', socketConnectionCallback);
-
 // Ручка для теста сокетов
 app.get('/chat', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'socket-test.html'));
 });
+
+const io = socketIO(server);
+
+const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
+
+io
+  .use(wrap(sessionMiddleware))
+  .use(wrap(passport.initialize()))
+  .use(wrap(passport.session()))
+  .on('connection', socketConnectionCallback);
 
 const start = async () => {
   try {

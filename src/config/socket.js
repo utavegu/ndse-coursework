@@ -1,35 +1,41 @@
 const ChatController = require('../controllers/ChatController');
 
+// В этой версии нет socket.request.user, потому нагородил вот такое. Выглядит как костыль, но это единственный способ, до которого я додумался
+const getAuthorId = (sessions) => {
+  let userId = '';
+  for (const key in sessions) {
+    if (JSON.parse(sessions[key]).hasOwnProperty('passport')) {
+      userId = JSON.parse(sessions[key]).passport.user;
+    }
+  }
+  return userId ? userId : null
+}
+
+const MOCK_RECEIVER = '639372280441b8595fea4cb6'; // Видимо, предполагается, что в интерфейсе есть что-то типа профилей пользователя и в профиле будет кнопка "написать персональное сообщение". Потому тут просто замокаю.
+
 module.exports = (socket) => {
-
-  const MOCK_AUTHOR = '639372280441b8595fea4cb5'; // Достаем из залогиненного юзера. Но как это сделать без реквеста? В сокете не видать
-  const MOCK_RECEIVER = '639372280441b8595fea4cb6'; // Вообще нет идей откуда достаем. Видимо, предполагается, что в интерфейсе есть что-то типа профилей пользователя и в профиле будет кнопка "написать персональное сообщение" (ДОЛЖНО ПЕРЕДАВАТЬСЯ ПАРАМЕТРОМ, ГДЕ-ТО В ТЗ ПИСАЛОСЬ НА ЭТУ ТЕМУ)
-
-  // const { id } = socket;
-  // console.log(`---------- Socket connected: ${id} ----------`);
-
   socket.on('client-to-server', (msg) => {
-    // TODO: Так, момент, а мне тут точно теперь нужны асинки-эвэйты, если они есть в контроллере? Но прием классный, сохрани его в свою книгу рецептов (IIFE с асинком. Дичь про точку с запятой перед можешь туда же добавить)
     (async () => {
       try {
-        const message = await ChatController.sendMessage(MOCK_AUTHOR, MOCK_RECEIVER, msg.text);
-        const chat = await ChatController.find([MOCK_AUTHOR, MOCK_RECEIVER]);
-        ChatController.subscribe(((chatID, message) => {
-          // console.log(`В чате ${chatID} появилось новое сообщение: "${message}"`)
-          const roomName = chatID;
-          socket.join(roomName);
-          socket
-            .to(roomName)
-            .emit('server-to-client', message);
-          socket.emit('server-to-client', message);
-        })(chat.id, message));
+        const authorId = getAuthorId(socket.request.sessionStore.sessions);
+        if (authorId) {
+          const message = await ChatController.sendMessage(authorId, MOCK_RECEIVER, msg.text);
+          const chat = await ChatController.find([authorId, MOCK_RECEIVER]);
+          ChatController.subscribe(((chatID, message) => {
+            // console.info(`В чате ${chatID} появилось новое сообщение: "${message}"`)
+            const roomName = chatID;
+            socket.join(roomName);
+            socket
+              .to(roomName)
+              .emit('server-to-client', message);
+            socket.emit('server-to-client', message);
+          })(chat.id, message));
+        } else {
+          console.log('Чтобы отправить сообщение войдите в систему')
+        }
       } catch (error) {
         console.error(error)
       }
     })()
   });
-
-  // socket.on('disconnect', () => {
-  //   console.log(`---------- Socket disconnected: ${id} ----------`);
-  // });
 }
