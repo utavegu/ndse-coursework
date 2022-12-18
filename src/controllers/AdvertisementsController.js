@@ -130,7 +130,7 @@ class AdvertisementsController {
     const { id } = request.params
     const advertisement = await Advertisement.findById(id).select('-__v')
     try {
-      if (advertisement.userId === request.user.id) {
+      if (String(advertisement.userId) === request.user.id) {
         if (advertisement.isDeleted) {
           return response
             .status(403) // TODO: Или 404?
