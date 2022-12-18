@@ -34,6 +34,7 @@
   </div>
 
   <script>
+
     const boxList = document.querySelector('#list');
     const inputText = document.querySelector('#text');
     const sendRoom = document.querySelector('#send');
@@ -50,19 +51,7 @@
        `;
     };
 
-
-
-
-
-
-    /*
-    В Постмане
-    My Workspace => New => WebSocket Request => Raw поменять на Socket.IO => ws://localhost:ВНЕШНИЙ_ПОРТ_ПРИЛОЖЕНИЯ/ => Connect => Запонлнить Event Name => формат JSON => { "text": "Сообщение" } => Send
-    Есть еще протокол wss
-    Не забывать делать дисконнект, если менялись переменные окружения
-    Входящие сообщения в постмане только что-то мне не приходят, но в базе данных все как надо меняется. Возможно это связано с тем, что у меня 2 разных события.
-    */
-    
+    // Сейчас уже не работает, так как требуется авторизация. Но для наглядного тестирования можно ее временно отключить.
 
     // Первый аргумент - сервер находится прямо тут. Второй (параметры) убрал, ничего отсюда не передаю при создании сокета (имя комнаты генерируется на сервере)
     const socket = io.connect('/');
@@ -78,13 +67,6 @@
       const div = getTmp(msg)
       boxList.insertAdjacentHTML('beforeend', div)
     });
-
-
-
-
-
-
-
 
   </script>
 
