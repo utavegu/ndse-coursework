@@ -7,12 +7,15 @@ services:
       - ./data:/data/db
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: $MONGODB_LOGIN
-      MONGO_INITDB_ROOT_PASSWORD: $MONGODB_PASSWORD
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
 
   delivery:
     container_name: delivery-app
-    build: .
+    image: node:19.1-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
     ports:
       - $DELIVERY_EXTERNAL_PORT:$DELIVERY_INTERNAL_PORT
     environment:
@@ -22,6 +25,7 @@ services:
       - MONGODB_LOGIN=$MONGODB_LOGIN
       - MONGODB_PASSWORD=$MONGODB_PASSWORD
       - DB_NAME=$DB_NAME
+    command: [ "npm", "run", "dev" ]
     depends_on:
       - mongo
 

@@ -2,7 +2,6 @@ TODO-s
 
 https://github.com/netology-code/ndse-diplom
 
-- Докерфайл (+ продовский докер-композ, а этот переделай в дев-версию)
 - енв-экзампл
 - Ридми
 - Собрать сборку, грохнуть все коллекции (и БД пожалуй тоже) и подергать все ручки, вебсокеты
@@ -30,3 +29,16 @@ https://github.com/netology-code/ndse-diplom
 Та же история с постманом. Лучше научись запросы разного типа пулять из курла. А шаблончики держи тут, скажем.
 
 Попробуй сделать модульную архитектуру, если успеешь
+
+А это еще что?
+
+delivery-app       | npm ERR! path /app
+delivery-app       | npm ERR! command failed
+delivery-app       | npm ERR! signal SIGTERM
+delivery-app       | npm ERR! command sh -c -- node src/index.js
+delivery-app       | 
+delivery-app       | npm ERR! A complete log of this run can be found in:
+delivery-app       | npm ERR!     /root/.npm/_logs/2022-12-18T13_50_11_850Z-debug-0.log
+delivery-app exited with code 1
+
+(после остановки прод-композа)
