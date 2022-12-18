@@ -7,8 +7,7 @@ const { Message, Chat } = ChatModels
 class ChatController {
 
   async find(users) {
-    // TODO: Тоже сделай одним словом и убедись, что работает
-    const chat = await Chat.findOne({ users: users }).select('-__v');
+    const chat = await Chat.findOne({ users }).select('-__v');
     return chat;
   }
 
