@@ -26,12 +26,12 @@ class AdvertisementsController {
               user: {
                 id: user.id,
                 name: user.name,
-                email: user.email,
-                contactPhone: user.contactPhone,
+                // email: user.email,
+                // contactPhone: user.contactPhone,
               },
               createdAt: newAdvertisement.createdAt,
-              updatedAt: newAdvertisement.updatedAt,
-              tags: newAdvertisement.tags,
+              // updatedAt: newAdvertisement.updatedAt,
+              // tags: newAdvertisement.tags,
             }
           })
       } else {
@@ -94,7 +94,7 @@ class AdvertisementsController {
     }
   }
 
-  // TODO: Реализовано неправильно, нужно переделать
+  // TODO: Реализовано неправильно, нужно переделать... Хотя стоп. Похоже эта ручка и find - это две разные истории. А тут все верно
   async getAdvertisement(request, response) {
     const { id } = request.params
     try {
@@ -133,7 +133,7 @@ class AdvertisementsController {
       if (advertisement.userId === request.user.id) {
         if (advertisement.isDeleted) {
           return response
-            .status(403)
+            .status(403) // TODO: Или 404?
             .json({
               status: 'error',
               error: 'Это объявление уже удалено'
@@ -170,7 +170,7 @@ class AdvertisementsController {
         .status(401)
         .json({
           status: 'error',
-          error: "Вам нужно войти в систему, чтобы получить доступ к этому функционалу"
+          error: 'Вам нужно войти в систему, чтобы получить доступ к этому функционалу'
         })
     }
     next()

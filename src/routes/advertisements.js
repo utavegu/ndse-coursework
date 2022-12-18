@@ -8,6 +8,7 @@ const fileMulter = config.multer;
 const { UPLOAD_IMAGES_LIMIT } = config.constants;
 
 // Создание объявления
+// TODO: А где-то нужно что-то дополнительно проверять, что это форм-дата или использование малтера это подразумевает?
 router.post(
   '/advertisements',
   AdvertisementsController.protectAdvertisement,

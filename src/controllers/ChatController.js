@@ -38,7 +38,8 @@ class ChatController {
     return newMessage;
   }
 
-
+  // TODO (_id чата) => Promise => Message[]
+  // async getHistory(id) {}
 
 }
 

@@ -12,7 +12,7 @@ class UsersController {
       }
       const salt = await bcrypt.genSalt(10);
       const passwordHash = await bcrypt.hash(request.body.password, salt);
-      const newUser = new User({ ...request.body, passwordHash: passwordHash });
+      const newUser = new User({ ...request.body, passwordHash: passwordHash }); // TODO: тут вроде тоже одним словом можно
       await newUser.save()
       response
         .status(201)
@@ -31,11 +31,17 @@ class UsersController {
         return response
           .status(500)
           // TODO: После сдачи курсовой: мне не нравится тут поле еррор. Лучше бы message было
-          .json({ status: 'error', error: `email ${error.keyValue.email} занят` })
+          .json({
+            status: 'error',
+            error: `email ${error.keyValue.email} занят`
+          })
       }
       return response
         .status(500)
-        .json({ status: 'error', error: error.message })
+        .json({
+          status: 'error',
+          error: error.message
+        })
     }
   }
 
@@ -61,6 +67,9 @@ class UsersController {
     // Так лучше не делать, конечно
     response.send("Разлогинились успешно!")
   }
+
+  // TODO (email - string => Promise (resolve) => User / null)
+  // async findByEmail(email) {}
 
 }
 
